@@ -6,7 +6,7 @@ import java.util.*;
 public class App {
 
     private static Scanner scanner;
-    private final static String DATABASE_URL = "jdbc:mysql://localhost/europe";
+    private final static String DATABASE_URL = "jdbc:mysql://localhost/countryandcontinent";
     private final static String USER = "root";
     private final static String PASSWORD = "";
 
@@ -16,7 +16,7 @@ public class App {
 
         insertIntoCountryContinent();
         getAllCountries();
-        getContinents();
+     //   getContinents();
         scanner.close();
     }
 
@@ -45,6 +45,7 @@ public class App {
         }
         return 0;
     }
+
     private static long insertContinent() throws SQLException {
         System.out.println("Continent name: ");
         String continent = scanner.nextLine();
@@ -70,6 +71,7 @@ public class App {
         }
         return 0;
     }
+
     private static boolean checkIfCountryExist(String country) throws SQLException {
         String query = "SELECT COUNT(*) FROM country WHERE country_name LIKE '%" + country + "%'";
         try (Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
@@ -86,6 +88,7 @@ public class App {
         }
         return false;
     }
+
     private static boolean checkIfContinentExist(String continent) throws SQLException {
         String query = "SELECT COUNT(*) FROM continent WHERE continent_name LIKE '%" + continent + "%'";
         try (Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
@@ -102,6 +105,7 @@ public class App {
         }
         return false;
     }
+
     private static int getContinentByName(String continent) throws SQLException {
         String query = "SELECT continent_id FROM continent WHERE continent_name LIKE '%" + continent + "%'";
         try (Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
@@ -115,6 +119,7 @@ public class App {
         }
         return 0;
     }
+
     private static int getCountryByName(String country) throws SQLException {
         String query = "SELECT country_id FROM country WHERE country_name LIKE '%" + country + "%'";
         try (Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
@@ -128,6 +133,7 @@ public class App {
         }
         return 0;
     }
+
     private static void insertIntoCountryContinent() throws SQLException {
         long countryId = insertCountry();
         long continentId = insertContinent();
@@ -141,6 +147,7 @@ public class App {
             e.printStackTrace();
         }
     }
+
     private static void getAllCountries() {
         Set<Country> countriesSet = new HashSet<>();
         try (Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
@@ -166,6 +173,7 @@ public class App {
             System.out.println(elem + " ");
         }
     }
+
     private static void getContinents() {
         Set<Continent> continentsSet = new HashSet<>();
         try (Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);

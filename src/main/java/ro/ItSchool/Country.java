@@ -12,6 +12,7 @@ public class Country {
     private int id;
     private String name;
     private String capital;
+
     private Continent continent;
 
     public Country(int country_id, String country_name, String country_capital) {
