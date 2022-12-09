@@ -4,19 +4,15 @@ import java.sql.*;
 import java.util.*;
 
 public class App {
-
-    private static Scanner scanner;
+    private static final Scanner scanner = new Scanner(System.in);
     private final static String DATABASE_URL = "jdbc:mysql://localhost/countryandcontinent";
     private final static String USER = "root";
     private final static String PASSWORD = "";
 
     public static void main(String[] args) throws SQLException {
 
-        scanner = new Scanner(System.in);
+        //insertIntoCountryContinent();
 
-        insertIntoCountryContinent();
-        getAllCountries();
-     //   getContinents();
         scanner.close();
     }
 
@@ -198,6 +194,81 @@ public class App {
         }
         for (Continent elem : continentsSet) {
             System.out.println(elem + " ");
+        }
+    }
+
+    private static void deleteContinentFromCountry(int id) {
+        String updateQuery = "UPDATE continent_country SET continent_id = null WHERE country_id = ?;";
+        try (Connection conn = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
+             PreparedStatement ps = conn.prepareStatement(updateQuery)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void deleteCountryFromForeignTable(int id) {
+        String deleteQuery = "DELETE FROM `continent_country` WHERE country_id = ?;";
+        try (Connection conn = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
+             PreparedStatement ps = conn.prepareStatement(deleteQuery)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void deleteCountryById() {
+        System.out.println("Input country id: ");
+        int id = scanner.nextInt();
+        deleteContinentFromCountry(id);
+        deleteCountryFromForeignTable(id);
+        String deleteQuery = "DELETE FROM `country` WHERE country_id = ?;";
+        try (Connection conn = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
+             PreparedStatement ps = conn.prepareStatement(deleteQuery)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private static void updateForeignTableForContinent(int id) {
+        String updateQuery = "UPDATE continent_country SET country_id = null WHERE continent_id = ?;";
+        try (Connection conn = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
+             PreparedStatement ps = conn.prepareStatement(updateQuery)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void deleteContinentFromForeignTable(int id) {
+        String deleteQuery = "DELETE FROM `continent_country` WHERE continent_id = ?;";
+        try (Connection conn = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
+             PreparedStatement ps = conn.prepareStatement(deleteQuery)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void deleteContinentById() {
+        System.out.println("Input continent id: ");
+        int id = scanner.nextInt();
+        updateForeignTableForContinent(id);
+        deleteContinentFromForeignTable(id);
+        String deleteQuery = "DELETE FROM `continent` WHERE continent_id = ?;";
+        try (Connection conn = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
+             PreparedStatement ps = conn.prepareStatement(deleteQuery)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
