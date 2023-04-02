@@ -1,4 +1,4 @@
-package ro.ItSchool;
+package project;
 
 import lombok.*;
 
@@ -21,5 +21,3 @@ public class Country {
         this.capital = country_capital;
     }
 }
-
-

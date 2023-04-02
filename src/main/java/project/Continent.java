@@ -1,4 +1,4 @@
-package ro.ItSchool;
+package project;
 
 import lombok.*;
 @Getter
@@ -20,4 +20,3 @@ public class Continent {
         this.state = states;
     }
 }
-

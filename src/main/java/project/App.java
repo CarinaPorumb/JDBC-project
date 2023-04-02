@@ -1,4 +1,4 @@
-package ro.ItSchool;
+package project;
 
 import java.sql.*;
 import java.util.*;
@@ -11,7 +11,7 @@ public class App {
 
     public static void main(String[] args) throws SQLException {
 
-        //insertIntoCountryContinent();
+        insertIntoCountryContinent();
 
         scanner.close();
     }
@@ -233,7 +233,6 @@ public class App {
             e.printStackTrace();
         }
     }
-
 
     private static void updateForeignTableForContinent(int id) {
         String updateQuery = "UPDATE continent_country SET country_id = null WHERE continent_id = ?;";
