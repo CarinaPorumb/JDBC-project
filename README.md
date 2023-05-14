@@ -8,15 +8,15 @@ but retrieves it from the database.
 
 ## Technologies Used
 
-######   * Java 20
+* Java 20
 
-######   * JDK 20
+* JDK 20
 
-######   * Apache Maven 3.9.1
+* Apache Maven 3.9.1
 
-######   * Lombok 1.18.26
+* Lombok 1.18.26
 
-######   * MySQL Connector 8.0.32
+* MySQL Connector 8.0.32
 
 ---
 
@@ -51,6 +51,8 @@ CREATE TABLE continent_country(
 
 ````
 
+---
+
 ## Getting Started
 
 Once the project is built, you can run the application by executing the `main` method in the `App` class.
@@ -58,3 +60,5 @@ The scanner will then prompt you to input the name of a country, its capital and
 values, as well as the name of a continent, its number of states and some other values. If you enter a country or
 continent that already exists in the database, the application will not create a duplicate entry but will retrieve the
 existing values.
+
+---
