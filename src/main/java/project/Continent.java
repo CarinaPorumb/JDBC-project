@@ -1,22 +1,48 @@
 package project;
 
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@ToString(exclude = "countries")
 public class Continent {
 
     private int id;
     private String name;
-    private int state;
+    private int numberOfStates;
 
-    private Country country;
+    private Set<Country> countries = new HashSet<>();
 
-    public Continent(int continent_id, String continent_name, int states) {
-        this.id = continent_id;
-        this.name = continent_name;
-        this.state = states;
+    public Continent(int continentId, String continentName, int numberOfStates) {
+        this.id = continentId;
+        this.name = continentName;
+        this.numberOfStates = numberOfStates;
     }
+
+    public void addCountry(Country country) {
+        if (country != null) {
+            countries.add(country);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Continent continent = (Continent) o;
+
+        return id == continent.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
+
 }

@@ -15,9 +15,25 @@ public class Country {
 
     private Continent continent;
 
-    public Country(int country_id, String country_name, String country_capital) {
-        this.id = country_id;
-        this.name = country_name;
-        this.capital = country_capital;
+        public Country(int countryId, String countryName, String countryCapital) {
+            this.id = countryId;
+            this.name = countryName;
+            this.capital = countryCapital;
+        }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Country country = (Country) o;
+
+        return id == country.id;
     }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
+
 }
