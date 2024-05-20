@@ -211,35 +211,34 @@ public class App {
         }
     }
 
-
-
-
-
-
     private static boolean checkIfContinentExist(String continent) throws SQLException {
-        String query = "SELECT COUNT(*) FROM continent WHERE continent_name LIKE '%" + continent + "%'";
+        String query = "SELECT COUNT(*) FROM continent WHERE continent_name LIKE ?";
         try (Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
-             Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery(query);
-            while (resultSet.next()) {
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1, continent + "%");
+            ResultSet resultSet = ps.executeQuery();
+            if (resultSet.next()) {
                 return resultSet.getInt(1) != 0;
             }
         } catch (SQLException e) {
-            throw new SQLException("SQL error");
+            LOGGER.error("Error checking if continent exists: {}", continent, e);
+            throw new SQLException("SQL error while checking if continent exists: " + continent, e);
         }
         return false;
     }
 
     private static int getContinentByName(String continent) throws SQLException {
-        String query = "SELECT continent_id FROM continent WHERE continent_name LIKE '%" + continent + "%'";
+        String query = "SELECT continent_id FROM continent WHERE continent_name LIKE ?";
         try (Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
-             Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery(query);
-            while (resultSet.next()) {
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, continent + "%");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
                 return resultSet.getInt(1);
             }
         } catch (SQLException e) {
-            throw new SQLException("SQL error");
+            LOGGER.error("Error retrieving continent by name: {}", continent, e);
+            throw new SQLException("SQL error while retrieving continent by name: " + continent, e);
         }
         return 0;
     }
@@ -248,7 +247,15 @@ public class App {
         System.out.println("Continent name: ");
         String continent = scanner.nextLine();
         System.out.println("Number of states: ");
-        int states = Integer.parseInt(scanner.nextLine());
+        int states = 0;
+
+        try {
+            states = Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            LOGGER.error("Invalid number format for states: {}", e.getMessage());
+            return 0;
+        }
+
         String queryContinent = "INSERT INTO continent(continent_name,number_of_states) VALUES (?,?)";
         try (Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
              PreparedStatement ps = connection.prepareStatement(queryContinent, Statement.RETURN_GENERATED_KEYS)) {
@@ -263,34 +270,62 @@ public class App {
                         throw new SQLException("Creating continent failed, no ID obtained.");
                     }
                 }
-            } else
+            } else {
+                LOGGER.info("Continent already exists: {}", continent);
                 return getContinentByName(continent);
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("Error inserting continent: {}", continent, e);
+            return 0;
         }
-        return 0;
     }
 
     private static void getContinents() {
-        Set<Continent> continentsSet = new HashSet<>();
-        try (Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
-             Statement st = connection.createStatement()) {
-            ResultSet resultSet = st.executeQuery("SELECT * FROM continent_country cc INNER JOIN continent c ON cc.continent_id = c.continent_id INNER JOIN country s ON cc.country_id = s.country_id;");
-            while (resultSet.next()) {
-                Continent continent = new Continent(resultSet.getInt("continent_id"),
-                        resultSet.getString("continent_name"),
-                        resultSet.getInt("number_of_states"),
-                        (Set<Country>) new Country(resultSet.getInt("country_id"),
-                                resultSet.getString("country_name"),
-                                resultSet.getString("country_capital")));
+        Set<Continent> continents = new HashSet<>();
 
-                continentsSet.add(continent);
+        String query = "SELECT c.continent_id, c.continent_name, c.number_of_states, " +
+                "s.country_id, s.country_name, s.country_capital " +
+                "FROM continent c " +
+                "LEFT JOIN continent_country cc ON c.continent_id = cc.continent_id " +
+                "LEFT JOIN country s ON cc.country_id = s.country_id;";
+
+        try (Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
+             PreparedStatement ps = connection.prepareStatement(query);
+
+        ) {
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+
+                int continentId = resultSet.getInt("continent_id");
+                String continentName = resultSet.getString("continent_name");
+                int numberOfStates = resultSet.getInt("number_of_states");
+
+                Continent continent = continents.stream()
+                        .filter(c -> c.getId() == continentId)
+                        .findFirst()
+                        .orElseGet(() -> new Continent(continentId, continentName, numberOfStates, new HashSet<>()));
+
+
+                int countryId = resultSet.getInt("country_id");
+                if (!resultSet.wasNull()) {
+                    String countryName = resultSet.getString("country_name");
+                    String countryCapital = resultSet.getString("country_capital");
+                    Country country = new Country(countryId, countryName, countryCapital);
+                    continent.getCountries().add(country);
+                }
+
+                continents.add(continent);
+
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("Error fetching continents: ", e);
         }
-        for (Continent elem : continentsSet) {
-            System.out.println(elem + " ");
+        for (Continent elem : continents) {
+            if (elem.getCountries().isEmpty()) {
+                System.out.println(elem + " with no associated countries");
+            } else {
+                System.out.println(elem + " ");
+            }
         }
     }
 
